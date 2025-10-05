@@ -1,101 +1,63 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify';
-import { handleError, handleSuccess } from '../utils';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-function Signup() {
+const Signup = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-    const [signupInfo, setSignupInfo] = useState({
-        name: '',
-        email: '',
-        password: ''
-    })
-
-    const navigate = useNavigate();
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        console.log(name, value);
-        const copySignupInfo = { ...signupInfo };
-        copySignupInfo[name] = value;
-        setSignupInfo(copySignupInfo);
+  const handleSignup = (e) => {
+    e.preventDefault(); // Prevent default form submission
+    // Basic validation (optional)
+    if (!name || !email || !password) {
+      toast.error('Please fill all fields!');
+      return;
     }
 
-    const handleSignup = async (e) => {
-        e.preventDefault();
-        const { name, email, password } = signupInfo;
-        if (!name || !email || !password) {
-            return handleError('name, email and password are required')
-        }
-        try {
-            const url = `https://deploy-mern-app-1-api.vercel.app/auth/signup`;
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(signupInfo)
-            });
-            const result = await response.json();
-            const { success, message, error } = result;
-            if (success) {
-                handleSuccess(message);
-                setTimeout(() => {
-                    navigate('/login')
-                }, 1000)
-            } else if (error) {
-                const details = error?.details[0].message;
-                handleError(details);
-            } else if (!success) {
-                handleError(message);
-            }
-            console.log(result);
-        } catch (err) {
-            handleError(err);
-        }
-    }
-    return (
-        <div className='container'>
-            <h1>Signup</h1>
-            <form onSubmit={handleSignup}>
-                <div>
-                    <label htmlFor='name'>Name</label>
-                    <input
-                        onChange={handleChange}
-                        type='text'
-                        name='name'
-                        autoFocus
-                        placeholder='Enter your name...'
-                        value={signupInfo.name}
-                    />
-                </div>
-                <div>
-                    <label htmlFor='email'>Email</label>
-                    <input
-                        onChange={handleChange}
-                        type='email'
-                        name='email'
-                        placeholder='Enter your email...'
-                        value={signupInfo.email}
-                    />
-                </div>
-                <div>
-                    <label htmlFor='password'>Password</label>
-                    <input
-                        onChange={handleChange}
-                        type='password'
-                        name='password'
-                        placeholder='Enter your password...'
-                        value={signupInfo.password}
-                    />
-                </div>
-                <button type='submit'>Signup</button>
-                <span>Already have an account ?
-                    <Link to="/login">Login</Link>
-                </span>
-            </form>
-            <ToastContainer />
-        </div>
-    )
-}
+    // Here you can call API to save user info
+    // For demo, just show toast and redirect to login
+    toast.success('Signup Successful! Please login.');
+    navigate('/login');
+  };
 
-export default Signup
+  return (
+    <div className="signup-container">
+      <h2>Signup</h2>
+      <form onSubmit={handleSignup}>
+        <label>Name</label>
+        <input
+          type="text"
+          placeholder="Your Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <label>Email</label>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <label>Password</label>
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Signup</button>
+      </form>
+      <p>
+        Already have an account? <a href="/login">Login</a>
+      </p>
+    </div>
+  );
+};
+
+export default Signup;
